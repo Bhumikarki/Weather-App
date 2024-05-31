@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Weather App</title> 
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+  <div class="card"> <!-- Container for the weather app card -->
+    <div class="search"> <!-- Container for the search input and button -->
+        <input type="text" placeholder="Enter the city name" spellcheck="false" required> 
+        <button><img src="images/search.png" alt=""></button> 
+    </div>
+    <div class="error">
+      <p>Invalid City Name</p>
+    </div>
+
+    <div class="weather"> <!-- Container for displaying weather information -->
+      <img src="images/rain.png" class="weather-icon"> 
+      <h1 class="temp">22°C</h1> 
+      <h2 class="city">Kathmandu</h2> 
+
+      <div class="details"> 
+
+        <div class="col"> 
+          <img src="images/humidity.png" alt=""> 
+          <div>
+            <p class="humidity">50%</p> 
+            <p>Humidity</p>
+          </div>
+        </div>
+
+        <div class="col"> 
+          <img src="images/wind.png" alt=""> 
+          <div>
+            <p class="wind">15 km/hr</p> 
+            <p>Wind Speed</p> 
+          </div>
+        </div>
+
+      </div>
+      </div>
+    </div>
+    
+  
+<script>
+
+  const apikey= "8154eb28e73873480e1d0fd408c6978d"; // API key for OpenWeatherMap
+  const apiUrl="https://api.openweathermap.org/data/2.5/weather?units=metric&q="; // Base URL for the weather API
+
+  const searchBox= document.querySelector(".search input"); 
+  const searchBtn= document.querySelector(".search button"); 
+  const weatherIcon =document.querySelector(".weather-icon"); 
+
+  // Asynchronous function to fetch and display weather data
+  async function checkWeather(city){
+    const response = await fetch(apiUrl + city +`&appid=${apikey}`); // Fetches weather data for the specified city
+    
+    if(response.status == 404){ // If the city is not found
+      document.querySelector(".error").style.display ="block"; 
+      document.querySelector(".weather").style.display ="none"; 
+    } else {
+      var data = await response.json(); // Parse the JSON response
+      document.querySelector(".city").innerHTML = data.name; // Update the city name
+      document.querySelector(".temp").innerHTML = Math.round(data.main.temp) + "°C"; // Update the temperature
+      document.querySelector(".humidity").innerHTML = data.main.humidity +"%"; // Update the humidity
+      document.querySelector(".wind").innerHTML = data.wind.speed + "km/h"; // Update the wind speed
+
+      // Update the weather icon based on the weather condition
+      if (data.weather[0].main == "Clouds"){
+        weatherIcon.src="images/clouds.png";
+      } else if(data.weather[0].main == "Clear"){
+        weatherIcon.src="images/clear.png";
+      } else if(data.weather[0].main == "Rain"){
+        weatherIcon.src="images/rain.png";
+      } else if(data.weather[0].main == "Drizzle"){
+        weatherIcon.src="images/drizzle.png";
+      } else if(data.weather[0].main == "Mist"){
+        weatherIcon.src="images/mist.png";
+      }
+      document.querySelector(".weather").style.display ="block"; // Display the weather information
+      document.querySelector(".error").style.display ="none"; // Hide the error message
+    }
+  }
+
+  // Event listener for the Enter key in the search input field
+  searchBox.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+      checkWeather(searchBox.value); // Fetch weather data for the entered city
+    }
+  });
+
+  // Event listener for the search button click
+  searchBtn.addEventListener("click", ()=> {
+    const city = searchBox.value.trim(); 
+    if (city === "") {
+      document.querySelector(".error").innerHTML = "Please enter a city name"; // Display error message if city name is empty
+      document.querySelector(".error").style.display = "block"; 
+      document.querySelector(".weather").style.display = "none"; // Hide the weather information
+    } else {
+      checkWeather(city); // Fetch weather data for the entered city
+    }
+  });
+  checkWeather();
+</script>
+
+</body>
+</html>
